@@ -1,0 +1,24 @@
+{
+  "name": "transaction-emulator",
+  "version": "1.0.0",
+  "description": "A neo4j transaction emulator",
+  "main": "index.js",
+  "scripts": {
+    "unit": "tape ./test/*.test.js | faucet",
+    "lint": "semistandard --verbose | snazzy",
+    "test": "npm run unit && npm run lint",
+    "start": "node index.js"
+  },
+  "author": "Shaun Burdick <github@shaunburdick.com>",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.1.2",
+    "neo4j-driver": "^1.1.0-M02"
+  },
+  "devDependencies": {
+    "faucet": "0.0.1",
+    "semistandard": "^9.1.0",
+    "snazzy": "^5.0.0",
+    "tape": "^4.6.2"
+  }
+}

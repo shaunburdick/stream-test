@@ -1,0 +1,74 @@
+---
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "Node Stream API"
+basePath: "/v1"
+paths:
+  /node:
+    get:
+      description: "Gets `Node` objects.\nOptional query param of **limit** determines\n\
+        size of returned array\n"
+      operationId: "nodeGET"
+      parameters:
+      - name: "limit"
+        in: "query"
+        description: "Number of records you want back"
+        required: false
+        type: "number"
+        format: "integer"
+      - name: "skip"
+        in: "query"
+        description: "Skip n records"
+        required: false
+        type: "number"
+        format: "integer"
+      - name: "node"
+        in: "query"
+        description: "A specific node to search for"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            $ref: "#/definitions/inline_response_200"
+      x-swagger-router-controller: "Default"
+definitions:
+  inline_response_200_data_links:
+    properties:
+      source:
+        type: "string"
+        description: "Name of link source"
+      target:
+        type: "string"
+        description: "Name of link target"
+  inline_response_200:
+    properties:
+      links:
+        $ref: "#/definitions/inline_response_200_links"
+      data:
+        $ref: "#/definitions/inline_response_200_data"
+    description: "jsonapi compliant (some day)"
+  inline_response_200_links:
+    properties:
+      self:
+        type: "string"
+        description: "a link to reproduce this data"
+  inline_response_200_data:
+    properties:
+      nodes:
+        type: "array"
+        title: "ArrayOfNodes"
+        items:
+          $ref: "#/definitions/inline_response_200_data_nodes"
+      links:
+        type: "array"
+        title: "ArrayOfLinks"
+        items:
+          $ref: "#/definitions/inline_response_200_data_links"
+  inline_response_200_data_nodes:
+    properties:
+      name:
+        type: "string"
+        description: "Name of the node"

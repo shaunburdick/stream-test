@@ -1,0 +1,80 @@
+<!-- from: https://bl.ocks.org/mbostock/4062045 -->
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+</style>
+<form id="paramForm">
+  <p>Search: <input type="text" id="node" name="node" />
+  <p>Limit: <input type="text" id="limit" name="limit"  value="10"/>
+  <p>Skip: <input type="text" id="skip" name="skip" value="0"/>
+  <p><button type="submit" value="send">Send</button>
+</form>
+<svg width="960" height="600"></svg>
+<script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+<script>
+  $(document).ready(function() {
+    $('#paramForm').submit(function (e) {
+      e.preventDefault();
+      $.get('v1/node', {
+        node: $('#node').val(),
+        limit: $('#limit').val(),
+        skip: $('#skip').val()
+      }).done(function(res) {
+        if (res && res.data) {
+          drawData(res.data);
+        }
+      });
+    });
+  });
+</script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function(d) { return d.name; }))
+    .force("charge", d3.forceManyBody())
+    .force("center", d3.forceCenter(width / 2, height / 2));
+
+function drawData(graph) {
+  var link = svg.append("g")
+      .attr("class", "links")
+    .selectAll("line")
+    .data(graph.links)
+    .enter().append("line")
+      .attr("stroke-width", 1);
+
+  var node = svg.append("g")
+      .attr("class", "nodes")
+    .selectAll("circle")
+    .data(graph.nodes)
+    .enter().append("circle")
+      .attr("r", 5);
+
+  node.append("title")
+      .text(function(d) { return d.name; });
+
+  simulation.force("link")
+      .links(graph.links);
+}
+
+</script>

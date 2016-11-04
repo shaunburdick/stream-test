@@ -1,0 +1,24 @@
+version: '2'
+services:
+  neo4j:
+    image: neo4j:3.0
+    environment:
+      - NEO4J_AUTH=neo4j/12345
+      - NEO4J_dbms_memory_heap_maxSize=1024
+      - NODE_ENV=production
+  transaction-emulator:
+    build: ./transaction-emulator
+    environment:
+      - NEO4J_URL=bolt://neo4j
+    depends_on:
+      - neo4j
+  api-server:
+    build: ./api-server
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - NEO4J_URL=bolt://neo4j
+    ports:
+      - "5000:5000"
+    depends_on:
+      - neo4j
