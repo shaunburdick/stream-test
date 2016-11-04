@@ -28,6 +28,11 @@ paths:
         description: "A specific node to search for"
         required: false
         type: "string"
+      - name: "depth"
+        in: "query"
+        description: "Depth of relationship tree to traverse"
+        type: "number"
+        format: "integer"
       responses:
         200:
           description: "Successful response"

@@ -13,6 +13,7 @@ exports.nodeGET = function (args, res, next) {
   const limit = +args.limit.value || 10;
   const skip = +args.skip.value || 0;
   const node = args.node.value || null;
+  const depth = +args.node.value || 3;
 
   const neo4jUrl = process.env.NEO4J_URL || 'bolt://localhost';
   const driver = neo4j.driver(neo4jUrl, neo4j.auth.basic('neo4j', '12345')); // hard coded cause I'm lazy
@@ -20,7 +21,7 @@ exports.nodeGET = function (args, res, next) {
 
   const cypherWhere = `WHERE a.name = "${node}"`;
   const cypher = `
-    MATCH (a:Node)<-[:REDIRECTS]-(b:Node)
+    MATCH (a:Node)<-[:REDIRECTS*1..${depth}]-(b:Node)
     ${node ? cypherWhere : ''}
     RETURN a.name as source, b.name as target
     SKIP ${skip}
