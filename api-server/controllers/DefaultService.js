@@ -46,6 +46,9 @@ exports.nodeGET = function (args, res, next) {
           });
         });
 
+        // unique the node names
+        retVal.nodes = [...new Set(retVal.nodes)];
+
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({
           data: retVal,
