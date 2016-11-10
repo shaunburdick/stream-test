@@ -66,7 +66,7 @@ setTimeout(() => {
         // return Promise.all(relationshipQueries);
 
         // http://jexp.de/blog/2014/03/quickly-create-a-100k-neo4j-graph-data-model-with-cypher-only/
-        return session.run('MATCH (n1:Node),(n2:Node) WITH n1,n2 LIMIT 2000000 WHERE rand() < 0.1 CREATE (n1)-[:REDIRECTS]->(n2);');
+        return session.run('MATCH (n1:Node),(n2:Node) WITH n1,n2 LIMIT 200000 WHERE n1 <> n2 CREATE (n1)-[:REDIRECTS]->(n2);');
       })
       .then(() => {
         console.log('Starting random data change job...');
@@ -87,6 +87,7 @@ setTimeout(() => {
  */
 function changeData (session) {
   // delete some stuff
+  console.log('Deleting random nodes...');
   session
     .run('MATCH (n:Node) WITH n LIMIT 5000 DETACH DELETE (n)')
     .then(() => {
