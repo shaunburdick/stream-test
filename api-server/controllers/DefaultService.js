@@ -2,6 +2,8 @@
 
 const neo4j = require('neo4j-driver').v1;
 const neo4jUrl = process.env.NEO4J_URL || 'bolt://localhost';
+const driver = neo4j.driver(neo4jUrl, neo4j.auth.basic('neo4j', '12345')); // hard coded cause I'm lazy
+
 
 /**
  * Return force graph formated list of nodes
@@ -26,7 +28,6 @@ exports.nodeGET = function (args, req, res, next) {
   const node = args.node.value || null;
   const depth = +args.node.value || 3;
 
-  const driver = neo4j.driver(neo4jUrl, neo4j.auth.basic('neo4j', '12345')); // hard coded cause I'm lazy
   const session = driver.session();
 
   const cypherWhere = `WHERE a.name = "${node}"`;
@@ -71,12 +72,10 @@ exports.nodeGET = function (args, req, res, next) {
         res.end();
       }
       session.close();
-      driver.close();
     })
     .catch((err) => {
       console.error(err);
       res.end();
       session.close();
-      driver.close();
     });
 };
