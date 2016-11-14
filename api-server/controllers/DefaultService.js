@@ -3,7 +3,16 @@
 const neo4j = require('neo4j-driver').v1;
 const neo4jUrl = process.env.NEO4J_URL || 'bolt://localhost';
 
-exports.nodeGET = function (args, res, next) {
+/**
+ * Return force graph formated list of nodes
+ *
+ * @param  {object}   args Swaggerized list of arguments
+ * @param  {Request}  req  Express Request object
+ * @param  {Response} res  Express Response object
+ * @param  {Function} next next callback
+ * @return {null}          Nada
+ */
+exports.nodeGET = function (args, req, res, next) {
   /**
    * parameters expected in the args:
    * limit (BigDecimal)
@@ -54,7 +63,7 @@ exports.nodeGET = function (args, res, next) {
         res.end(JSON.stringify({
           data: retVal,
           links: {
-            self: 'foo'
+            self: req.originalUrl
           }
         }));
       } else {
