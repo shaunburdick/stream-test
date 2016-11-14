@@ -1,12 +1,14 @@
 'use strict';
 
 const neo4j = require('neo4j-driver').v1;
+const neo4jUrl = process.env.NEO4J_URL || 'bolt://localhost';
 
 exports.nodeGET = function (args, res, next) {
   /**
    * parameters expected in the args:
    * limit (BigDecimal)
    * skip (BigDecimal)
+   * depth (BigDecimal)
    * node (String)
    */
 
@@ -15,7 +17,6 @@ exports.nodeGET = function (args, res, next) {
   const node = args.node.value || null;
   const depth = +args.node.value || 3;
 
-  const neo4jUrl = process.env.NEO4J_URL || 'bolt://localhost';
   const driver = neo4j.driver(neo4jUrl, neo4j.auth.basic('neo4j', '12345')); // hard coded cause I'm lazy
   const session = driver.session();
 
