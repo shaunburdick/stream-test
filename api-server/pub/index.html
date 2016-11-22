@@ -18,6 +18,7 @@
   <p>Search: <input type="text" id="node" name="node" />
   <p>Limit: <input type="text" id="limit" name="limit"  value="10"/>
   <p>Skip: <input type="text" id="skip" name="skip" value="0"/>
+  <p>Depth: <input type="text" id="depth" name="depth" value="3"/>
   <p><button type="submit" value="send">Send</button>
 </form>
 <svg width="960" height="600"></svg>
@@ -25,16 +26,30 @@
   src="https://code.jquery.com/jquery-3.1.1.min.js"
   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
   crossorigin="anonymous"></script>
+<script src='/socket.io/socket.io.js'></script>
 <script>
+  var socket = io();
+  var roomId = null;
   $(document).ready(function() {
     $('#paramForm').submit(function (e) {
       e.preventDefault();
-      $.get('v1/node', {
-        node: $('#node').val(),
-        limit: $('#limit').val(),
-        skip: $('#skip').val()
+      $.ajax({
+        url: 'v1/node',
+        method: 'GET',
+        headers: {
+          sockId: socket.id
+        },
+        data: {
+          node: $('#node').val(),
+          limit: $('#limit').val(),
+          skip: $('#skip').val(),
+          depth: $('#depth').val()
+        }
       }).done(function(res) {
         if (res && res.data) {
+          socket.on(res.data.socket.channel, (data) => {
+            console.log(data);
+          });
           drawData(res.data);
         }
       });

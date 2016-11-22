@@ -11,6 +11,11 @@ paths:
         size of returned array\n"
       operationId: "nodeGET"
       parameters:
+      - name: "sockId"
+        in: "header"
+        description: "Id of the client socket"
+        required: true
+        type: string
       - name: "limit"
         in: "query"
         description: "Number of records you want back"
@@ -72,6 +77,11 @@ definitions:
         title: "ArrayOfLinks"
         items:
           $ref: "#/definitions/inline_response_200_data_links"
+      socket:
+        properties:
+          channel:
+            type: "string"
+            description: "socket channel to listen to for changes"
   inline_response_200_data_nodes:
     properties:
       name:

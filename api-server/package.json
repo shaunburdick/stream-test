@@ -20,6 +20,7 @@
     "js-yaml": "^3.3.0",
     "neo4j-driver": "^1.1.0-M02",
     "serve-static": "^1.11.1",
+    "socket.io": "^1.5.1",
     "swagger-tools": "0.10.1"
   },
   "devDependencies": {

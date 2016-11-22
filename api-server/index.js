@@ -7,6 +7,8 @@ var http = require('http');
 var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
 var fs = require('fs');
+var socketio = require('socket.io');
+var socketHelper = require('./lib/socket');
 var serverPort = process.env.PORT || 3000;
 
 // swaggerRouter configuration
@@ -38,7 +40,21 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
   app.use(serveStatic(path.join(__dirname, 'pub')));
 
   // Start the server
-  http.createServer(app).listen(serverPort, function () {
+  const server = http.createServer(app);
+
+  // setup socketio
+  const io = socketio.listen(server);
+  socketHelper.set(io);
+
+  io.on('connection', (socket) => {
+    console.log('User has connected');
+
+    socket.on('disconnect', () => {
+      console.log('User has disconnect');
+    });
+  });
+
+  server.listen(serverPort, function () {
     console.log('Your server is listening on port %d (http://localhost:%d)', serverPort, serverPort);
     console.log('Swagger-ui is available on http://localhost:%d/docs', serverPort);
   });
