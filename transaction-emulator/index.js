@@ -4,15 +4,60 @@ const neo4j = require('neo4j-driver').v1;
 const async = require('async');
 const nodeGenerator = require('./lib/nodeGenerator');
 
-console.log('Generating cluster...');
-const nodes = nodeGenerator.genCluster(100000);
-console.log('Done!');
+const neo4jUrl = process.env.NEO4J_URL || 'bolt://localhost';
+const driver = neo4j.driver(neo4jUrl, neo4j.auth.basic('neo4j', '12345'));
+
+// try to connect to neo4j server IIFE
+((driver) => {
+  const MAX_NEO4J_CONNECTS = 10;
+  let retries = 0;
+  let connected = false;
+  console.log(`Connecting to neo4j: ${neo4jUrl}...`);
+  async.until(
+    () => ((retries > MAX_NEO4J_CONNECTS) || connected), // test to see if connection or max retries happens
+    (next) => {
+      if (retries > 0) {
+        console.log(`Retry ${retries}...`);
+      }
+
+      const session = driver.session();
+      session.run('MATCH (a:Node) RETURN a.name LIMIT 1')
+      .then(() => {
+        console.log('Connected!');
+        connected = true;
+        session.close();
+        next();
+      })
+      .catch(() => {
+        session.close();
+        retries++;
+        setTimeout(() => next(), 5000);// sleep for 5 seconds
+      });
+    },
+    (err) => {
+      if (err) {
+        console.log(err);
+        process.exit(1);
+      }
+
+      if (connected) {
+        console.log('Generating cluster...');
+        const nodes = nodeGenerator.genCluster(100000);
+        console.log('Done!');
+
+        mockData(nodes);
+      } else {
+        console.log(`Unable to connect to ${neo4jUrl}`);
+        process.exit(1);
+      }
+    }
+  );
+})(driver);
 
 // Probably way better ways to do this type of thing but I wanted it to by dynamic every time
 // and I didn't want to spend a lot of time researching bulk imports :-p
-// The delay is super hacky for docker-compose
 
-setTimeout(() => {
+function mockData (nodes) {
   // Create each node
   const cypherCreate = [];
   nodes.forEach((node) => {
@@ -29,8 +74,6 @@ setTimeout(() => {
     return retVal;
   })(cypherCreate);
 
-  const neo4jUrl = process.env.NEO4J_URL || 'bolt://localhost';
-  const driver = neo4j.driver(neo4jUrl, neo4j.auth.basic('neo4j', '12345'));
   const session = driver.session();
 
   console.log('Inserting Nodes...');
@@ -69,7 +112,7 @@ setTimeout(() => {
         return session.run('MATCH (n1:Node),(n2:Node) WITH n1,n2 LIMIT 200000 WHERE n1 <> n2 CREATE (n1)-[:REDIRECTS]->(n2);');
       })
       .then(() => {
-        console.log('Starting random data change job...');
+        console.log('Starting random data change job (60 second interval)...');
         setInterval(() => changeData(session), 60000);
       })
       .catch((err) => {
@@ -77,7 +120,7 @@ setTimeout(() => {
         process.exit(1);
       });
   });
-}, 20000);
+}
 
 /**
  * Mess with the relationships and data
